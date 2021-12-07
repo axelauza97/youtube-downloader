@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Youtube Downloader</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'youtube/style.css' %}">
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-sm bg-dark navbar-dark justify-content-center">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="#">Búsqueda por Nombre</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Búsqueda Playlist</a>
+      </li>
+
+    </ul>
+  </nav>
+
+  <div class="container">
+    <h2 class="my-4">Busqueda por Nombre</h2>
+    {% load embed_video_tags %}
+    {{data}}
+    {% if name %}
+    <div>Resultados de {{name}}</br></div>
+    {% endif %}
+    {% if name %}
+    <div class="my-2">Descargando {{name_video}}</div>
+    {% endif %}
+    <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+
+    <form action="/" method="post" class="form-inline form-index">
+      {% csrf_token %}
+      <label class="mr-2" for="name">Search:</label>
+      <input class="form-control mr-2" id="name" placeholder="Video a buscar" name="name">
+      <button type="submit" class="btn btn-primary mr-2">Submit</button>
+
+    </form>
+
+    <table class="ml-auto mr-auto mt-2">
+      {{dict}}
+      {% for key, values in dict.items %}
+      {{dict}}
+      <form action="download" method="post" target="dummyframe">
+        {% csrf_token %}
+        <tr>
+          <td {{ key }}></td>
+          <input type="hidden" name="key" value="{{ key }}">
+          <input type="hidden" name="name" value="{{ name }}">
+          {% for v in values %}
+          <td><a target="_blank" href={{"http://youtube.com/watch?v=" |add:key}}>{{v}}</a></td>
+          <input type=" hidden" name="name_video" value="{{ v }}">
+          {% endfor %}
+
+
+              <input type="hidden" name="dict" value="{{ dict }}">
+              <input type="hidden" name="download">
+          <td><button type="submit" class="btn btn-primary">Descargar</button></td>
+        </tr>
+      </form>
+      {% endfor %}
+    </table>
+
+
+  </div>
+
+</body>
+
+</html>
