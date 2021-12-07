@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Youtube Downloader</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'youtube/style.css' %}">
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-sm bg-dark navbar-dark justify-content-center">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="/">Búsqueda por Nombre</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/playlist">Búsqueda Playlist</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="/downloads">Lista de Descargas</a>
+      </li>
+
+    </ul>
+  </nav>
+
+  <div class="container">
+    <h2 class="my-4">Descargas</h2>
+    <table class="ml-auto mr-auto mt-2">
+        {% for value in list %}
+        <tr>
+            <td>{{value}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+  </div>
+
+</body>
+
+</html>

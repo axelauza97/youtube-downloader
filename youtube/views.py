@@ -10,8 +10,8 @@ from pytube import YouTube
 
 import threading
 import os
-import json
 
+import glob
 
 def thread_function(list,dictt,x,y):
     for id in list[x:y]:
@@ -88,8 +88,8 @@ def download(request):
        
         #stream = os.popen("yt-dlp -S 'res:1080,acodec:mp3,vcodec:h263' -o '%(title)s' --remux-video mp4  --user-agent chrome --download-archive ids.txt "+key)
         
-        #thread=threading.Thread(target=thread_downloadVideo, args=(key,))
-        #thread.start()
+        thread=threading.Thread(target=thread_downloadVideo, args=(key,))
+        thread.start()
         context ={
         '''    "data":"POST",
             "key":key,
@@ -100,4 +100,29 @@ def download(request):
 
         ##yt-dlp -S 'res:720,acodec:mp3,vcodec:h263' -o '%(title)s' --remux-video mp4  --user-agent chrome --download-archive ids.txt --concurrent-fragments 5 oDRp1DPhPLI
         return render(request, 'youtube/list.html',)
-        
+
+def playlist(request):
+    if request.method == 'GET':
+        print(glob.glob("*.mp4")) 
+
+        return render(request, 'youtube/playlist.html')
+
+    elif request.method == 'POST':   
+        url=request.POST["url"]
+        print(url)
+        print(url.split("&list=")[1])
+        thread=threading.Thread(target=thread_downloadVideo, args=(url.split("&list=")[1],))
+        thread.start()
+        #https://www.youtube.com/watch?v=TUVcZfQe-Kw&list=PLNrotoZZ8BaoXT_LJuwEyESQlctWNDCwD
+        ##yt-dlp -S 'res:720,acodec:mp3,vcodec:h263' -o '%(title)s' --remux-video mp4  --user-agent chrome --download-archive ids.txt --concurrent-fragments 5 oDRp1DPhPLI
+        return render(request, 'youtube/playlist.html',)
+
+def downloads(request):
+    if request.method == 'GET':
+        context ={
+           "list":glob.glob("*.mp4") ,
+        }
+
+        return render(request, 'youtube/downloads.html',context)
+
+   
