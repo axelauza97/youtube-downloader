@@ -14,23 +14,41 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-sm bg-dark navbar-dark justify-content-center">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" href="/">Búsqueda por Nombre</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/playlist">Búsqueda Playlist</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link active" href="/downloads">Lista de Descargas</a>
-      </li>
-
-    </ul>
+  <nav class="navbar navbar-expand-md bg-dark navbar-dark">
+    <a class="navbar-brand" href="#">Lista de Descargas</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Búsqueda por Nombre</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/playlist">Búsqueda Playlist</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="/downloads">Lista de Descargas</a>
+        </li>  
+      </ul>
+    </div>  
   </nav>
 
   <div class="container">
-    <h2 class="my-4">Descargas</h2>
+    <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+    <h4 class="mt-2">Género {{genre}}</h4>
+    <form action="downloads" method="get" target="dummyframe">
+
+      <select class="form-control" name="genre">
+        <option value="select" selected="selected" disabled>Seleccione Género</option>
+        <option value="pop">Pop</option>
+        <option value="baladas">Baladas</option>
+        <option value="latino">Latino</option>      
+        <option value="rock">Rock</option>
+        <option value="salsa">Salsa</option>
+      </select>
+    </form>
+    <input class="form-control mr-2 mb-2" placeholder="Filtrar por nombre" id="input">
     <table class="ml-auto mr-auto mt-2">
         {% for value in list %}
         <tr>
@@ -42,5 +60,17 @@
   </div>
 
 </body>
+<script>
+  $('select').on('change', function() {
+    window.location = '/downloads?genre='+this.value;
+    
+  });
+  $("#input").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+</script>
 
 </html>

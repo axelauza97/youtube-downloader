@@ -16,23 +16,28 @@
 
 </head>
 <body>
-  <nav class="navbar navbar-expand-sm bg-dark navbar-dark justify-content-center">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link active" href="/">Búsqueda por Nombre</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/playlist">Búsqueda Playlist</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/downloads">Lista de Descargas</a>
-      </li>
-      
-    </ul>
+  <nav class="navbar navbar-expand-md bg-dark navbar-dark">
+    <a class="navbar-brand" href="#">Busqueda por Nombre</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="/">Búsqueda por Nombre</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/playlist">Búsqueda Playlist</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/downloads">Lista de Descargas</a>
+        </li>  
+      </ul>
+    </div>  
   </nav>
 
+
 <div class="container">
-  <h2 class="my-4">Busqueda por Nombre</h2>
   {% load embed_video_tags %}
   
   {% if name %}
@@ -41,13 +46,20 @@
   <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
 
   
-  <form action="/" method="post" class="form-inline form-index">
+  <form action="/" method="post" class="form-inline form-index mt-2">
 	{% csrf_token %} 
       <label class="mr-2 mb-2" for="name">Search:</label>
       <input class="form-control mr-2 mb-2" id="name" placeholder="Video a buscar" name="name">
       <button type="submit" class="btn btn-primary mr-2 mb-2">Submit</button>    
   </form>
-
+  <select class="form-control" name="genre">
+    <option value="select" selected="selected" disabled>Seleccione Género donde guardar</option>
+    <option value="pop">Pop</option>
+    <option value="baladas">Baladas</option>
+    <option value="latino">Latino</option>      
+    <option value="rock">Rock</option>
+    <option value="salsa">Salsa</option>
+  </select>
    <table class="ml-auto mr-auto mt-2">
    
    {% for key, values in dict.items %}
@@ -56,16 +68,17 @@
     <tr>
         <input type="hidden" name="key" value="{{ key }}">
         <input type="hidden" name="name" value="{{ name }}">
-        {% for v in values %}
-        <td><a target="_blank" href={{"http://youtube.com/watch?v=" |add:key}}>{{v}}</a></td>
+        <input type="hidden" name="genre">
+
+        <td><a target="_blank" href={{"http://youtube.com/watch?v=" |add:key}}>{{values}}</a></td>
         <!--input type="hidden" name="name_video" value="{{ v }}">
         
         
 
         <input type="hidden" name="dict" value="{{ dict }}">
         <input type="hidden" name="download"-->
-        <td class="download {{v}}"><button type="submit" class="btn btn-primary" id="btnDownload" >Descargar</button></td>    
-        {% endfor %}   
+        <td class="download {{values}}"><button type="submit" class="btn btn-primary" id="btnDownload" >Descargar</button></td>    
+  
     </tr>
   </form>
    {% endfor %}
@@ -75,10 +88,26 @@
 </div>
 <script>
   $('td.download').click(function() {
+    if( typeof $($('input[name="genre"]').get(0)).attr("value")=="undefined"){
+      alert( "Seleccione  Género donde guardar");
+      flag=1;
+      return false;
+    }
+
     var str=$(this).attr('class');
     str=str.replace("download","");
     alert( "Descargando "+str);
+    $(this).find("button").prop('disabled', true);
+    $(this).find("button").text("Descargando");
   });
+  $('select').on('click', function() {
+    var genre=this.value;
+    $('input[name="genre"]').each(function() {
+      $(this).attr("value",genre);
+    });    
+  });
+
+
 </script>
 
 </body>
