@@ -38,12 +38,10 @@
 
 
 <div class="container">
-  {% load embed_video_tags %}
   
   {% if name %}
-  Resultados de  {{name}}
+  <div class="mt-2">Resultados de  {{name}}</div>
   {% endif %}
-  <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
 
   
   <form action="/" method="post" class="form-inline form-index mt-2">
@@ -63,43 +61,51 @@
    <table class="ml-auto mr-auto mt-2">
    
    {% for key, values in dict.items %}
-   <form action="download" method="post" target="dummyframe">
+
     {% csrf_token %} 
-    <tr>
+    <tr class="{{key}}">
         <input type="hidden" name="key" value="{{ key }}">
         <input type="hidden" name="name" value="{{ name }}">
         <input type="hidden" name="genre">
 
         <td><a target="_blank" href={{"http://youtube.com/watch?v=" |add:key}}>{{values}}</a></td>
-        <!--input type="hidden" name="name_video" value="{{ v }}">
-        
-        
-
-        <input type="hidden" name="dict" value="{{ dict }}">
-        <input type="hidden" name="download"-->
-        <td class="download {{values}}"><button type="submit" class="btn btn-primary" id="btnDownload" >Descargar</button></td>    
+        <td class="download {{values}}"><button type="submit" key="{{key}}" class="btn btn-primary download">Descargar</button></td>    
   
     </tr>
-  </form>
+
    {% endfor %}
   </table>
 
 
 </div>
 <script>
-  $('td.download').click(function() {
-    if( typeof $($('input[name="genre"]').get(0)).attr("value")=="undefined"){
-      alert( "Seleccione  Género donde guardar");
-      flag=1;
+  $('button.btn.btn-primary.download').click(function() {
+    var key=$(this).attr("key");
+    var tr = $("tr."+key); 
+    var name= $($(tr).find('input[name="name"]')[0]).attr("value");
+    var genre= $($(tr).find('input[name="genre"]')[0]).attr("value");
+    
+    var button =$(this);
+    if( typeof genre=="undefined" || genre=="select"){
+      alert( "Seleccione género donde guardar");
       return false;
     }
-
-    var str=$(this).attr('class');
-    str=str.replace("download","");
-    alert( "Descargando "+str);
-    $(this).find("button").prop('disabled', true);
-    $(this).find("button").text("Descargando");
+    else{
+      let csrftoken = '{{ csrf_token }}'
+      $.ajax({
+        method: "POST",
+        headers:{'X-CSRFToken':csrftoken},
+        url: "download",
+        data: { key:key, name: name, genre: genre }
+      })
+        .done(function( msg ) {
+          alert( "Descargando "+name );
+          $(button).prop('disabled', true);
+          $(button).text("Descargando");
+        });
+    }
   });
+
   $('select').on('click', function() {
     var genre=this.value;
     $('input[name="genre"]').each(function() {

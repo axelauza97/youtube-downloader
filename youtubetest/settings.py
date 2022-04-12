@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+X_FRAME_OPTIONS = 'ALLOW-FROM http://192.168.100.90:8000/'
 
 # Application definition
 
@@ -38,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'youtube',
-    'embed_video'
 ]
 
 MIDDLEWARE = [

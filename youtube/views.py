@@ -15,15 +15,19 @@ import glob
 
 from youtube.models import Genre, Video
 import random
+import multiprocessing
 
-def thread_function(list,dictt,x,y):
-    for id in list[x:y]:
-        yt = YouTube('http://youtube.com/watch?v='+id)
-        dictt[id]=yt.title
+def thread_function(list,dictt,x):
+    id=list[x]
+    yt = YouTube('http://youtube.com/watch?v='+id)
+    dictt[id]=yt.title
 
 def thread_downloadVideo(id,genre):
-    stream = os.popen("yt-dlp -S 'res:1080,acodec:mp3,vcodec:h263' -o './"+genre+"/%(title)s' --remux-video mp4  --user-agent chrome --download-archive ids.txt youtube.com/watch?v="+id)
-    #output = stream.read()
+    #stream = os.popen("yt-dlp -S 'res:1080,acodec:mp3,vcodec:h263' -o './"+genre+"/%(title)s' --remux-video mp4  --user-agent chrome --download-archive ids.txt youtube.com/watch?v="+id)
+    stream = os.popen("yt-dlp -S 'res:1080,acodec:mp3,vcodec:h263' -o './"+genre+"/%(title)s' --remux-video mp4  --user-agent chrome youtube.com/watch?v="+id)
+    print("yt-dlp -S 'res:1080,acodec:mp3,vcodec:h263' -o './"+genre+"/%(title)s' --remux-video mp4  --user-agent chrome youtube.com/watch?v="+id)
+    stream.read()
+    stream.close()
     #print(output)
 
 # Create your views here.
@@ -43,22 +47,27 @@ def index(request):
 
         video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
         #size_ids=len(video_ids)
+        #print(size_ids)
         video_dic={}
-        ids=[]
+        ids=set([])
         #random.shuffle(video_ids)
+        if(len(video_ids)<20):
+            return render(request, 'youtube/index.html')
+
         while(len(ids)!=20):
             key=video_ids.pop()
-            if Video.objects.filter(key=key).exists():
+            video=Video.objects.filter(key=key)
+            if video.exists():
                 #print(key)                
                 print("existe")
             else:
-                ids.append(key)
-                pass
+                ids.add(key)  
+        ids=list(ids)
         threads=list()
         dicts=[]
-        for x in range(0,22,2):
+        for x in range(0,20):
             dictt={}
-            thread=threading.Thread(target=thread_function, args=(ids,dictt,x,x+2))
+            thread=threading.Thread(target=thread_function, args=(ids,dictt,x,))
             thread.start()
             threads.append(thread)
             dicts.append(dictt)
@@ -69,7 +78,6 @@ def index(request):
         for dictt in dicts:
             video_dic.update(dictt)
         
-
         #print(video_dic)
         context ={
             "data":"POST",
@@ -95,8 +103,10 @@ def download(request):
         video.save()
        
         #stream = os.popen("yt-dlp -S 'res:1080,acodec:mp3,vcodec:h263' -o '%(title)s' --remux-video mp4  --user-agent chrome --download-archive ids.txt "+key)
-        thread=threading.Thread(target=thread_downloadVideo, args=(key,genre))
-        thread.start()
+        #thread=threading.Thread(target=thread_downloadVideo, args=(key,genre))
+        #thread.start()
+        p = multiprocessing.Process(target=thread_downloadVideo, args=(key,genre))
+        p.start()
         ##yt-dlp -S 'res:720,acodec:mp3,vcodec:h263' -o '%(title)s' --remux-video mp4  --user-agent chrome --download-archive ids.txt --concurrent-fragments 5 oDRp1DPhPLI
         return render(request, 'youtube/list.html',)
 
@@ -111,6 +121,8 @@ def playlist(request):
         genre=request.POST["genre"]
         print(url)
         print(url.split("&list=")[1])
+        #p = multiprocessing.Process(target=thread_downloadVideo, args=(url.split("&list=")[1],genre))
+        #p.start()
         thread=threading.Thread(target=thread_downloadVideo, args=(url.split("&list=")[1],genre))
         thread.start()
         return render(request, 'youtube/playlist.html',)

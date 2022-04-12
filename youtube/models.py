@@ -10,7 +10,7 @@ class Genre(models.Model):
         return self.name
 
 class Video(models.Model):
-    key = models.CharField(max_length=15)
+    key = models.CharField(primary_key=True,max_length=15)
     name = models.CharField(max_length=255,blank=True)
     genre = models.ForeignKey(Genre,on_delete=models.DO_NOTHING)
     def __str__(self):
